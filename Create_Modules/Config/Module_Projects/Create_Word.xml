@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Modules>
+    <ModuleName>Create_Word</ModuleName>
+    <Description>Module voor het maken van Word Documenten</Description>
+    <Functionsdir>E:\Data\Scripts\FunctionsDir\Create Word Functions</Functionsdir>
+    <Moduleversion>0.1</Moduleversion>
+    <FunctionsToExport>*</FunctionsToExport>
+</Modules>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Config>
+    <Instellingen>
+        <DisplayLogfiles>1</DisplayLogfiles>
+        <RemoveLogfiles>1</RemoveLogfiles>
+        <RollBack>0</RollBack>
+        <Testrun>0</Testrun>
+    </Instellingen>
+    <InputFiles>
+        <InputFile />
+    </InputFiles>
+    <OutputFiles>
+        <Outputfile>Output.json</Outputfile>
+    </OutputFiles>
+    <Execute>
+        <ExecProces1>True</ExecProces1>
+    </Execute>
+    <Modules>
+        <ModuleProjectFile>Create_Word.xml</ModuleProjectFile>
+        <ModuleProjectdir>E:\Data\Scripts\Repository\Create_Modules\Config\Module_Projects</ModuleProjectdir>
+        <Modulesdir>E:\Data\Scripts\Modules</Modulesdir>
+    </Modules>
+    <ModuleInfo>
+        <Author>Marten Wiltens</Author>
+        <Companyname>Bloemendaal Consultancy</Companyname>
+    </ModuleInfo>
+    <Email>
+        <From>info@rdw.nl</From>
+        <TestTo>mwiltens@rdw.nl</TestTo>
+        <To>ddp@rdw.nl</To>
+        <Priority>Normal</Priority>
+        <SmtpServer>smtp.beheer.tld</SmtpServer>
+    </Email>
+</Config>

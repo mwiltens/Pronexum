@@ -1,0 +1,9 @@
+Function OpsommingtekensUit{
+	#Deze functie zet de opsommingstekens uit
+	<# Start variabelen#>
+	#$Word In deze globale variabele staat de DDE-Link naar Word	
+	#$wdBulletGallery In deze variabele staat de waarde die Word nodig is om een bewerking uit te voeren	
+	<# End variabelen#>
+	$WORD.selection.Range.ListFormat.RemoveNumbers($wdNumberParagraph)
+	$WORD.Selection.ParagraphFormat.LeftIndent = inchestopoints 0.5	
+}
