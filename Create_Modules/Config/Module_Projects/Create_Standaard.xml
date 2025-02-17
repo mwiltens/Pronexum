@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Modules>
+    <ModuleName>Standaard</ModuleName>
+    <Description>Standaard module voor de scripts</Description>    
+    <Functionsdir>E:\Data\Scripts\Pronexum\Pronexum\FunctionsDir\Standaard</Functionsdir>
+    <Functionsdir1>E:\Data\Scripts\FunctionsDir\Standaard Functions</Functionsdir1>
+    <Moduleversion>0.1</Moduleversion>
+    <FunctionsToExport>*</FunctionsToExport>
+</Modules>
+

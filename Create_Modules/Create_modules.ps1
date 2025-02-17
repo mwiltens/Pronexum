@@ -53,20 +53,22 @@ Function Main{
     $Functionname = "Main"
     Try{
         Write-log -Category Verbose -message "[$(get-date -format "HH:mm")] [$Functionname] : Execute : "
-        #$Global:ExecNew = $True
-        If ($Global:ExecProces1){
-            $StatusTekst  = "Nieuwe functie testen"
-            $StatusTekst  = "Proces 1 uitvoeren"
+        #$Global:ExecNew = $True#
+        If ($Global:ExecProces1){            
+            $StatusTekst  = "Aanmaken van modules"
             Write-log -Category Host -message "[$Functionname] : Execute : $StatusTekst" -color Magenta
             Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $StatusTekst" -logfile $Global:VoortgangFile
             Write-log -Category Verbose -message "[$(get-date -format "HH:mm")] [$Functionname] : Execute : Init_Module"
-            Init_Module            
-            Create_module 
-            Create_Module_file
-            IF (Test-Path $Global:ModuleFullname){
-                notepad.exe $Global:ModuleFullname
-            }
-                        
+            $Result  = Init_Module            
+            If ($Result){
+                Write-log -Category Verbose -message "[$(get-date -format "HH:mm")] [$Functionname] : Execute : Create_Module"
+                Create_module 
+                Write-log -Category Verbose -message "[$(get-date -format "HH:mm")] [$Functionname] : Execute : Create_Module_file"
+                Create_Module_file
+                IF (Test-Path $Global:ModuleFullname){
+                    notepad.exe $Global:ModuleFullname
+                }
+            }                        
             #Execute_New
             #Versturen_Backup_Mail
         }
@@ -133,7 +135,6 @@ Function Create_XML{
         Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
     }
 }
-
 Function Create_ProjectXML{
     $FunctionName = "Create_ProjectXML"
     Write-log -Category Debug -message "[$Functionname] : `$Configfile = `'$Configfile`'"
@@ -161,20 +162,6 @@ Function Create_ProjectXML{
         Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
     }
 }
-
-
-Function Prereq{
-    $Functionname = "Prereq"
-    $Global:PreReqResult = $Null
-    #Check_Features -FeatureName GPMC -Action Installeren
-    #$Result = Check_Inputfile
-    #Update_Status -Status $Result 
-    #$Result = Test-InputfileExists -Testfile $Global:NewServersFile 
-    #Update_Status -Status $Result 
-    #$Result = Test-InputfileExists -Testfile $Global:OldServersFile 
-    #Update_Status -Status $Result 
-    Return $Global:PreReqResult
-}
 Function Read_XML{
 	Param ($Default = $True)
     $FunctionName = "Read_XML"
@@ -182,13 +169,14 @@ Function Read_XML{
     Try{
 	#return
         [xml]$XML= get-content $Configfile
-    	$InputFile = "$($XML.Config.InputFiles.InputFile)"
-        $OutputFile = "$($XML.Config.OutputFiles.OutputFile)"
-        $DisplayLogfiles = $XML.Config.Instellingen.DisplayLogfiles
-	    $RollBack = $XML.Config.Instellingen.RollBack
-        $RemoveLogfiles = $XML.Config.Instellingen.RemoveLogfiles
-	    $TestRun = $XML.Config.Instellingen.TestRun
+    	#$InputFile = "$($XML.Config.InputFiles.InputFile)"
+        #$OutputFile = "$($XML.Config.OutputFiles.OutputFile)"
+        #$DisplayLogfiles = $XML.Config.Instellingen.DisplayLogfiles
+	    #$RollBack = $XML.Config.Instellingen.RollBack
+        #$RemoveLogfiles = $XML.Config.Instellingen.RemoveLogfiles
+	    #$TestRun = $XML.Config.Instellingen.TestRun
         #region Uitlezen-Instellingen
+
     	$InputFile = "$($XML.Config.InputFiles.InputFile)"
         $OutputFile = "$($XML.Config.OutputFiles.OutputFile)"
         $DisplayLogfiles = $XML.Config.Instellingen.DisplayLogfiles
@@ -331,29 +319,6 @@ Function Read_XML{
         Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
     }
 }
-Function Test-InputfileExists{
-    Param ($Testfile)
-    $Functionname = "Test-InputfileExists"
-    Try{
-        If (!(Test-Path $Testfile)){
-            Write-log -Category Host -message "[$Functionname] : $Testfile is niet aanwezig" -color Red
-            $PreReqResult = $false
-            Return $PreReqResult
-        }else{
-            Write-log -Category verbose -message "[$Functionname] : Invoerbestand `'$Testfile`' is aanwezig" 
-            $PreReqResult = $true
-        }
-        Return $PreReqResult
-    }catch{
-        Write-log -Category Error -message "[$Functionname] : Unknown error. "   
-        Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
-        Write-log -Category Error -message "[$Functionname] : Fullname     : $($_.exception.gettype().Fullname)"
-        Write-log -Category Error -message "[$Functionname] : Type fout    : $($_.CategoryInfo.category)"
-        Write-log -Category Error -message "[$Functionname] : Position     : $($_.invocationinfo.positionmessage)"
-        Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
-    }
-
-}
 #endregion Basisfuncties
 #region Template functies
 Function New{
@@ -426,7 +391,6 @@ Function New_Invoke{
 }
 #endregion Template functies
 #region Script functies
-
 Function Versturen_Mail{
     $Functionname = "Versturen_Mail"
     Try{
@@ -443,40 +407,6 @@ Function Versturen_Mail{
         Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
     }
 
-}
-Function Execute_Sendmail{
-    Param ($Subject,$Body,[Validateset("High","Low","Normal")]$Priority = "Normal",$Attachment="",$To,[Validateset($True,$False)]$bodyashtml,$From = "$($env:computername)@rdw.nl")
-    $Functionname = "Execute_Sendmail"
-    Write-log -Category Debug -message "[$Functionname] : `$To = `'$To`' "
-    Write-log -Category Debug -message "[$Functionname] : `$From = `'$From`' "
-    Write-log -Category Debug -message "[$Functionname] : `$Subject = `'$Subject`' "
-    Write-log -Category Debug -message "[$Functionname] : `$Body = `'`$Body`' "
-    Write-log -Category Debug -message "[$Functionname] : `$Priority = `'$Priority`' "
-    Write-log -Category Debug -message "[$Functionname] : `$Attachment = `'$Attachment`' "
-    Write-log -Category Debug -message "[$Functionname] : `$bodyashtml = `'$bodyashtml`' "
-    Try{
-        $KopVoettekst = "Mail versturen"
-        KopVoettekst -Tekst $KopVoettekst -Functie Kop
-        Write-log -Category Host -message "[$Functionname] : Execute : $KopVoettekst" -color Magenta
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst" -logfile $Global:VoortgangFile
-        If ($Global:testrun){
-            $SendTo = $global:TestTO
-        }else{
-            $SendTo = $global:To
-        }
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Sendmail -To $SendTo -Subject $Subject -Priority $Priority -Body $Body -bodyashtml $bodyashtml -Attachment $Attachment -From $From"
-        Sendmail -To $SendTo -Subject $Subject -Priority $Priority -Body $Body -bodyashtml $bodyashtml -Attachment $Attachment -From $From 
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst is uitgevoerd" 
-        KopVoettekst -Tekst $KopVoettekst -Functie Voet
-    }catch{
-        Write-log -Category Error -message "[$Functionname] : Unknown error. "   
-        Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
-        Write-log -Category Error -message "[$Functionname] : Fullname     : $($_.exception.gettype().Fullname)"
-        Write-log -Category Error -message "[$Functionname] : Type fout    : $($_.CategoryInfo.category)"
-        Write-log -Category Error -message "[$Functionname] : Position     : $($_.invocationinfo.positionmessage)"
-        Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
-    }
 }
 Function Init_Module{
     $Functionname = "Init_Module"
@@ -499,21 +429,16 @@ Function Init_Module{
         Write-log -Category Host -message "$($("ModuleDir").Padright($InitTab)) : $ModuleDir" -color Magenta
         Write-log -Category Host -message "$($("ModuleFullname").Padright($InitTab)) : $Global:ModuleFullname" -color Magenta
         Write-log -Category Host -message "$($("Manifestname").Padright($InitTab)) : $Global:Manifestname" -color Magenta
-        
-
-
-        #$KopVoettekst = "Nieuwe functie"
-        #Write-log -Category Host -message "Execute : $KopVoettekst" -color Magenta
-        #Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst" -logfile $Global:VoortgangFile
-       <#
-        $KopVoettekst = "Nieuwe functie"
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  "
-        KopVoettekst -Tekst $Koptekst -Functie Kop
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd" 
-        KopVoettekst -Tekst $Koptekst -Functie Voet
-        #>
-
+        IF (!(test-path $Global:Functionsdir)){
+            Write-log -Category Host -message "[$Functionname] : $Global:Functionsdir is niet gevonden" -color Red
+            return $False
+        }else{
+            IF (!([bool](Get-ChildItem -Path $Global:FunctionsDir))){
+                Write-log -Category Host -message "[$Functionname] : Er zijn geen bestanden gevonden in $Global:Functionsdir " -color Red
+                return $False
+            }
+        }
+        return $True
     }catch{
         Write-log -Category Error -message "[$Functionname] : Unknown error. "   
         Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
@@ -572,15 +497,6 @@ Function Create_Module{
 
             }
         }
-       <#
-        $KopVoettekst = "Nieuwe functie"
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  "
-        KopVoettekst -Tekst $Koptekst -Functie Kop
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd" 
-        KopVoettekst -Tekst $Koptekst -Functie Voet
-        #>
-
     }catch{
         Write-log -Category Error -message "[$Functionname] : Unknown error. "   
         Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
@@ -620,7 +536,7 @@ Function Create_Manifest{
     $Functionname = "Create_Manifest"
     Write-log -Category Debug -message "[$Functionname] : `$Version = `'$Version`' "
     Try{
-        $KopVoettekst = "Create new Manifest"
+        $KopVoettekst = "Create new Manifest : $Global:Manifestname"
         Write-log -Category Host -message "Execute : $KopVoettekst" -color Magenta
         Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst" -logfile $Global:VoortgangFile
         If ($Global:TestRun){
@@ -630,15 +546,6 @@ Function Create_Manifest{
             Write-log -Category Verbose -message "[$Functionname] : Execute : New-ModuleManifest -Path $Global:Manifestname -Author $Global:Author -CompanyName $Global:Companyname -ModuleVersion $Version -Description $Global:Description -FunctionsToExport $Global:FunctionsToExport"
             New-ModuleManifest -Path $Global:Manifestname -Author $Global:Author -CompanyName $Global:Companyname -ModuleVersion $Version -Description $Global:Description -FunctionsToExport $Global:FunctionsToExport
         }
-       <#
-        $KopVoettekst = "Nieuwe functie"
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  "
-        KopVoettekst -Tekst $Koptekst -Functie Kop
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd" 
-        KopVoettekst -Tekst $Koptekst -Functie Voet
-        #>
-
     }catch{
         Write-log -Category Error -message "[$Functionname] : Unknown error. "   
         Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
@@ -678,15 +585,6 @@ Function Read_Manifest{
             }
             return "$Major.$Minor"
         }
-               <#
-        $KopVoettekst = "Nieuwe functie"
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  "
-        KopVoettekst -Tekst $Koptekst -Functie Kop
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd" 
-        KopVoettekst -Tekst $Koptekst -Functie Voet
-        #>
-
     }catch{
         Write-log -Category Error -message "[$Functionname] : Unknown error. "   
         Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
@@ -695,15 +593,16 @@ Function Read_Manifest{
         Write-log -Category Error -message "[$Functionname] : Position     : $($_.invocationinfo.positionmessage)"
         Write-log -Category Error -message "[$Functionname] : Errormessage : $($_.Exception.message)"   
     }
-}Function Create_Module_File{
+}
+Function Create_Module_File{
     $Functionname = "Create_Module_File"
     #Write-log -Category Debug -message "[$Functionname] : `$Param1 = `'$Param1`' "
     Try{
-        $KopVoettekst = "Create Module File"
+        $KopVoettekst = "Create Module File : $Global:ModuleFullname"
         Write-log -Category Host -message "Execute : $KopVoettekst" -color Magenta
         Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $KopVoettekst" -logfile $Global:VoortgangFile
         If ([string]::IsNullOrEmpty($Global:Functionnames)){
-            Write-log -Category Host -message "Er zijn geen functies gevonden om toe te voegen aan de module" -color Red
+            Write-log -Category Host -message "Er zijn geen functies gevonden om toe te voegen aan de module $Global:ModuleFullname " -color Red
         }else{
             $NewModule = @()
             foreach ($NewFunction in $Global:Functionnames){
@@ -722,15 +621,6 @@ Function Read_Manifest{
             }
             $NewModule | Out-File $Global:ModuleFullname
         }
-       <#
-        $KopVoettekst = "Nieuwe functie"
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  "
-        KopVoettekst -Tekst $Koptekst -Functie Kop
-        Write-log -Category Verbose -message "[$Functionname] : Execute :  Write-log -Category Log -message `"[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd`""
-        Write-log -Category Log -message "[$(Get-date -Format "dd-MM-yyyy HH:mm")] $Koptekst is uitgevoerd" 
-        KopVoettekst -Tekst $Koptekst -Functie Voet
-        #>
-
     }catch{
         Write-log -Category Error -message "[$Functionname] : Unknown error. "   
         Write-log -Category Error -message "[$Functionname] : Targetname   : $($_.CategoryInfo.targetname)"
